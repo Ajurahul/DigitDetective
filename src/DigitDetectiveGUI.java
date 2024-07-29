@@ -83,9 +83,9 @@ public class DigitDetectiveGUI {
             attemptsLabel.setText(String.valueOf(remainingAttempts));
 
             if (userGuess < numberToGuess) {
-                resultArea.append("Too low! Try again.\n");
+                resultArea.append(userGuess +" :Too low! Try again.\n");
             } else if (userGuess > numberToGuess) {
-                resultArea.append("Too high! Try again.\n");
+                resultArea.append(userGuess +" :Too high! Try again.\n");
             } else {
                 resultArea.append("Congratulations! You guessed the number in " + attempts + " attempts.\n");
                 guessButton.setEnabled(false);
