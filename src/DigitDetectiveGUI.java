@@ -1,9 +1,15 @@
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Random;
 
 public class DigitDetectiveGUI {
@@ -14,6 +20,7 @@ public class DigitDetectiveGUI {
 
     private int numberToGuess;
     private int attempts;
+    private int timeLeft = 90; // 90 seconds
 
     private JFrame frame;
     private JTextField guessField;
@@ -21,11 +28,10 @@ public class DigitDetectiveGUI {
     private JButton guessButton;
     private JButton newGameButton;
     private JLabel attemptsLabel;
-    
     private JLabel timerLabel;
     private Timer countdownTimer;
-    private int timeLeft = 90; // 90 seconds
 
+    private BackgroundMusicPlayer musicPlayer;
 
     public DigitDetectiveGUI() {
         // Create the GUI
@@ -36,19 +42,19 @@ public class DigitDetectiveGUI {
 
         // Input panel
         JPanel inputPanel = new JPanel();
-        inputPanel.setLayout(new GridLayout(3, 2));
+        inputPanel.setLayout(new GridLayout(4, 2));
 
         JLabel promptLabel = new JLabel("Enter your guess:");
         guessField = new JTextField();
         guessButton = new JButton("Guess");
         newGameButton = new JButton("New Game");
+        timerLabel = new JLabel("Time left: 90");
 
         inputPanel.add(promptLabel);
         inputPanel.add(guessField);
         inputPanel.add(new JLabel("Attempts Left:"));
         attemptsLabel = new JLabel(String.valueOf(MAX_ATTEMPTS));
         inputPanel.add(attemptsLabel);
-        timerLabel = new JLabel("Time left: 90");
         inputPanel.add(timerLabel);
 
         // Result area
@@ -60,7 +66,6 @@ public class DigitDetectiveGUI {
             JOptionPane.showMessageDialog(frame, "Guess the number between " + MIN + " and " + MAX + ". You have " + MAX_ATTEMPTS + " attempts. Good luck!");
         });
 
-
         // Add components to frame
         frame.add(inputPanel, BorderLayout.NORTH);
         frame.add(scrollPane, BorderLayout.CENTER);
@@ -70,6 +75,25 @@ public class DigitDetectiveGUI {
         buttonPanel.add(newGameButton);
         buttonPanel.add(helpButton);
         frame.add(buttonPanel, BorderLayout.SOUTH);
+
+        // Initialize countdown timer
+        countdownTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                timeLeft--;
+                timerLabel.setText("Time left: " + timeLeft);
+                
+                if (timeLeft <= 0) {
+                    countdownTimer.stop();
+                    resultArea.append("Time's up! The number was " + numberToGuess + ".\n");
+                    endGame("lost");
+                }
+            }
+        });
+
+        // Initialize background music player
+        musicPlayer = new BackgroundMusicPlayer();
+        musicPlayer.playMusic("audio.wav"); // Replace with the path to your audio file
 
         // Add button listeners
         guessButton.addActionListener(new ActionListener() {
@@ -95,22 +119,8 @@ public class DigitDetectiveGUI {
                 }
             }
         });
-        
-        countdownTimer = new Timer(1000, new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                timeLeft--;
-                timerLabel.setText("Time left: " + timeLeft);
-                
-                if (timeLeft <= 0) {
-                    countdownTimer.stop();
-                    resultArea.append("Time's up! The number was " + numberToGuess + ".\n");
-                    endGame("lost");
-                }
-            }
-        });
 
-        // Initialize the game
+        // Start a new game
         startNewGame();
 
         // Make frame visible
@@ -126,16 +136,15 @@ public class DigitDetectiveGUI {
         guessButton.setEnabled(true);
         guessField.setEnabled(true);
         guessField.setText("");
-        
+
         // Reset and start the timer
         timeLeft = 90;
         timerLabel.setText("Time left: 90");
         countdownTimer.start();
-        
+
         // Print the correct number to the console
         System.out.println("Debug: The correct number to guess is " + numberToGuess);
     }
-
 
     private void handleGuess() {
         String text = guessField.getText().trim();
@@ -185,11 +194,13 @@ public class DigitDetectiveGUI {
         // Stop the countdown timer
         countdownTimer.stop();
         
+        // Stop the background music
+        musicPlayer.stopMusic();
+        
         if (result.equals("won")) {
             WinningAnimation.showWinningAnimation();
         }
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(DigitDetectiveGUI::new);
