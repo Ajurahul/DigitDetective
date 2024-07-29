@@ -148,6 +148,10 @@ public class DigitDetectiveGUI {
         guessField.setEnabled(false);
         String message = result.equals("won") ? "You won!" : "You lost!";
         resultArea.append(message + " Click 'New Game' to start again.\n");
+        
+        if (result.equals("won")) {
+            WinningAnimation.showWinningAnimation();
+        }
     }
 
     public static void main(String[] args) {
