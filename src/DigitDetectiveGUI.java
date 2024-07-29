@@ -48,6 +48,11 @@ public class DigitDetectiveGUI {
         resultArea = new JTextArea();
         resultArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(resultArea);
+        JButton helpButton = new JButton("Help");
+        helpButton.addActionListener(e -> {
+            JOptionPane.showMessageDialog(frame, "Guess the number between " + MIN + " and " + MAX + ". You have " + MAX_ATTEMPTS + " attempts. Good luck!");
+        });
+
 
         // Add components to frame
         frame.add(inputPanel, BorderLayout.NORTH);
@@ -56,6 +61,7 @@ public class DigitDetectiveGUI {
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(guessButton);
         buttonPanel.add(newGameButton);
+        buttonPanel.add(helpButton);
         frame.add(buttonPanel, BorderLayout.SOUTH);
 
         // Add button listeners
