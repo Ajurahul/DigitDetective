@@ -21,6 +21,11 @@ public class DigitDetectiveGUI {
     private JButton guessButton;
     private JButton newGameButton;
     private JLabel attemptsLabel;
+    
+    private JLabel timerLabel;
+    private Timer countdownTimer;
+    private int timeLeft = 90; // 90 seconds
+
 
     public DigitDetectiveGUI() {
         // Create the GUI
@@ -43,6 +48,8 @@ public class DigitDetectiveGUI {
         inputPanel.add(new JLabel("Attempts Left:"));
         attemptsLabel = new JLabel(String.valueOf(MAX_ATTEMPTS));
         inputPanel.add(attemptsLabel);
+        timerLabel = new JLabel("Time left: 90");
+        inputPanel.add(timerLabel);
 
         // Result area
         resultArea = new JTextArea();
@@ -88,6 +95,20 @@ public class DigitDetectiveGUI {
                 }
             }
         });
+        
+        countdownTimer = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                timeLeft--;
+                timerLabel.setText("Time left: " + timeLeft);
+                
+                if (timeLeft <= 0) {
+                    countdownTimer.stop();
+                    resultArea.append("Time's up! The number was " + numberToGuess + ".\n");
+                    endGame("lost");
+                }
+            }
+        });
 
         // Initialize the game
         startNewGame();
@@ -105,10 +126,16 @@ public class DigitDetectiveGUI {
         guessButton.setEnabled(true);
         guessField.setEnabled(true);
         guessField.setText("");
-
+        
+        // Reset and start the timer
+        timeLeft = 90;
+        timerLabel.setText("Time left: 90");
+        countdownTimer.start();
+        
         // Print the correct number to the console
         System.out.println("Debug: The correct number to guess is " + numberToGuess);
     }
+
 
     private void handleGuess() {
         String text = guessField.getText().trim();
@@ -155,10 +182,14 @@ public class DigitDetectiveGUI {
         String message = result.equals("won") ? "You won!" : "You lost!";
         resultArea.append(message + " Click 'New Game' to start again.\n");
         
+        // Stop the countdown timer
+        countdownTimer.stop();
+        
         if (result.equals("won")) {
             WinningAnimation.showWinningAnimation();
         }
     }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(DigitDetectiveGUI::new);
